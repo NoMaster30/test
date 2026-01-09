@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel Admin | Eternal Services Update</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Montserrat:wght@800;900&display=swap" rel="stylesheet">
+    
+    <style>
+        /* ========================================================================= */
+        /* --- Styles fusionnés de admin.css pour le thème ETERNAL --- */
+        /* ========================================================================= */
+        :root {
+            --color-primary: #ff0000;
+            --color-secondary: #99aab5;
+            --color-background-deep: #121212;
+            --color-background-dark: #1e1e1e;
+            --color-background-card: #1f1f1f;
+            --color-text-light: #f5f5f5;
+            --color-text-muted: #aaaaaa;
+            --color-border: #333333;
+            --color-button-hover: #cc0000;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            background: var(--color-background-deep);
+            color: var(--color-text-light);
+            font-family: 'Roboto', sans-serif;
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex; flex-direction: column;
+            background-image: radial-gradient(circle at 30% 20%, rgba(255, 0, 0, 0.15) 0%, transparent 60%), radial-gradient(circle at 70% 80%, rgba(255, 0, 0, 0.08) 0%, transparent 60%);
+        }
+
+        .site-header { background-color: var(--color-background-dark); box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4); padding: 15px 0; }
+        .header-content { display: flex; justify-content: space-between; align-items: center; max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+        .brand-name { font-family: 'Montserrat', sans-serif; font-weight: 900; font-size: 26px; color: var(--color-text-light); text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5); }
+        .logo-e { color: var(--color-primary); font-size: 1.1em; }
+        
+        nav .nav-link { color: var(--color-text-muted); text-decoration: none; margin-left: 20px; padding: 8px 12px; transition: all 0.3s ease; border-radius: 6px; font-weight: 500; cursor: pointer;}
+        nav .nav-link:hover { color: var(--color-primary); background-color: rgba(88, 101, 242, 0.1); }
+        nav .nav-link.active { color: var(--color-text-light); background-color: var(--color-primary); box-shadow: 0 0 5px rgba(255, 0, 0, 0.5); }
+
+        .main-content { flex-grow: 1; padding: 50px 20px; display: flex; justify-content: center; align-items: center; }
+        .container { background: var(--color-background-card); padding: 40px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5); width: 100%; max-width: 500px; border-top: 5px solid var(--color-primary); animation: fadeIn 0.5s ease-out; }
+
+        .header-title { text-align: center; font-size: 28px; margin-bottom: 30px; color: var(--color-text-light); font-weight: 700; }
+        .form-group { margin-bottom: 20px; }
+        label { font-weight: 700; display: block; margin-bottom: 8px; color: var(--color-text-light); }
+        select, textarea, input[type="file"], input[type="text"], input[type="password"] {
+            width: 100%; padding: 12px; border-radius: 6px; border: 1px solid var(--color-border); background: #252525; color: var(--color-text-light); outline: none; font-size: 16px; transition: border-color 0.3s, box-shadow 0.3s;
+        }
+        select:focus, textarea:focus, input:focus { border-color: var(--color-primary); box-shadow: 0 0 0 2px rgba(255, 0, 0, 0.4); }
+        textarea { height: 120px; resize: vertical; }
+
+        button { width: 100%; padding: 15px; border-radius: 6px; border: none; background: var(--color-primary); color: var(--color-text-light); font-weight: 700; font-size: 18px; margin-top: 20px; cursor: pointer; transition: background 0.2s, transform 0.1s, box-shadow 0.2s; }
+        button:hover { background: var(--color-button-hover); transform: translateY(-2px); box-shadow: 0 4px 10px rgba(255, 0, 0, 0.4); }
+
+        .site-footer { text-align: center; padding: 20px 0; color: var(--color-text-muted); font-size: 12px; border-top: 1px solid var(--color-background-dark); }
+        
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* AUTH MODAL STYLE (Nouveau) */
+        #authOverlay { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 999; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
+        .hidden { display: none !important; }
+        .status-msg { margin-top: 10px; text-align: center; font-weight: bold; min-height: 24px; }
+    </style>
+</head>
+<body>
+    
+    <div id="authOverlay">
+        <div class="container" style="max-width: 400px;">
+            <h2 class="header-title">CONNEXION API</h2>
+            <div class="form-group">
+                <label>Clé API Sellauth (sa_live_...)</label>
+                <input type="password" id="apiKey">
+            </div>
+            <div class="form-group">
+                <label>ID Shop (ex: 118356)</label>
+                <input type="text" id="shopId">
+            </div>
+            <button onclick="connect()">Se Connecter</button>
+        </div>
+    </div>
+
+    <header class="site-header">
+        <div class="header-content">
+            <h2 class="brand-name" style="color: #ff0000 !important;">ETERNAL SERVICES</h2>
+            <nav>
+                <a href="#" class="nav-link active">Update Panel</a>
+                <a href="https://discord.gg/eternalservices" target="_blank" class="nav-link">Discord</a>
+                <a href="#" onclick="logout()" class="nav-link" style="color: var(--color-primary); font-weight: bold;">Déconnexion</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <div class="container">
+            <h1 class="header-title"><span class="logo-e">ETERNAL SERVICES UPDATE</span></h1>
+
+            <div class="form-group">
+                <label for="game">Sélectionner un produit:</label>
+                <select id="game">
+                    <option value="" disabled selected>Chargement des produits...</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="status">Statut de l'Update:</label>
+                <select id="status">
+                    <option value="Updated">✅ Updated</option>
+                    <option value="Under maintenance">⚠️ Under maintenance</option>
+                    <option value="Detected">🚨 Detected</option>
+                    <option value="Testing">🧪 Testing</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="predefined_message">Messages Prédéfinis:</label>
+                <select id="predefined_message" onchange="applyPredefinedMessage()"> 
+                    <option value="">-- Sélectionnez un message --</option>
+                    <option value="Updated to latest game version.">Updated to latest game version.</option>
+                    <option value="Down due to new game version.">Down due to new game version.</option>
+                    <option value="Minor fix applied, stability improved.">Minor fix applied, stability improved.</option>
+                    <option value="Confirmed detected. Don't use it.">Confirmed detected. Don't use it.</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="details">Texte de statut (visible sur le shop):</label>
+                <textarea id="details" placeholder="Ce texte remplacera le 'Status Text' sur Sellauth..."></textarea>
+            </div>
+
+            <button onclick="sendUpdate()" id="submitBtn">Envoyer la Mise à Jour</button>
+            <div id="resultMsg" class="status-msg"></div>
+        </div>
+    </main>
+    
+    <footer class="site-footer">
+        <p>&copy; 2024 Eternal Services. All Rights Reserved. | Panel Version 2.1</p>
+    </footer>
+
+    <script>
+        const API_URL = window.location.origin + "/api";
+        let APP = { key: '', shop: '', products: [] };
+
+        // 1. Initialisation : Vérifier si on a déjà des identifiants
+        window.onload = () => {
+            const savedKey = localStorage.getItem('sa_key');
+            const savedShop = localStorage.getItem('sa_shop');
+            if(savedKey && savedShop) {
+                document.getElementById('apiKey').value = savedKey;
+                document.getElementById('shopId').value = savedShop;
+                connect();
+            }
+        };
+
+        // 2. Connexion et Chargement des produits
+        async function connect() {
+            const k = document.getElementById('apiKey').value;
+            const s = document.getElementById('shopId').value;
+            
+            if(!k || !s) return alert("Veuillez remplir la Clé API et l'ID Shop");
+
+            APP.key = k.includes('Bearer') ? k : `Bearer ${k}`;
+            APP.shop = s;
+
+            const btn = document.querySelector('#authOverlay button');
+            const originalText = btn.innerText;
+            btn.innerText = "Connexion...";
+
+            try {
+                // Fetch products (avec pagination simple pour être sûr d'en avoir pas mal)
+                const res = await fetch(`${API_URL}/shops/${s}/products?perPage=100`, { 
+                    headers: { 'Authorization': APP.key } 
+                });
+                
+                if(!res.ok) throw new Error("Échec de connexion. Vérifiez la clé API.");
+                
+                const json = await res.json();
+                APP.products = Array.isArray(json) ? json : (json.data || []);
+                
+                // Sauvegarde pour reconnexion auto
+                localStorage.setItem('sa_key', k);
+                localStorage.setItem('sa_shop', s);
+
+                populateGameSelect();
+                document.getElementById('authOverlay').classList.add('hidden');
+
+            } catch(e) {
+                alert(e.message);
+                localStorage.clear();
+            } finally {
+                btn.innerText = originalText;
+            }
+        }
+
+        // 3. Remplir le Select avec les VRAIS produits
+        // Cela remplace votre liste hardcodée par celle de Sellauth
+        function populateGameSelect() {
+            const select = document.getElementById('game');
+            select.innerHTML = '<option value="">-- Choisir un produit --</option>';
+            
+            APP.products.forEach(p => {
+                const id = p.id || p.product_id;
+                const name = p.name || p.title || 'Produit sans nom';
+                const option = document.createElement('option');
+                option.value = id; // IMPORTANT : On a besoin de l'ID pour l'API
+                option.text = name; // Mais on affiche le Nom pour vous
+                select.appendChild(option);
+            });
+        }
+
+        // 4. Helper pour message prédéfini
+        function applyPredefinedMessage() {
+            const msg = document.getElementById('predefined_message').value;
+            if(msg) document.getElementById('details').value = msg;
+        }
+
+        // 5. Envoyer la mise à jour (C'est ici que la magie opère)
+        async function sendUpdate() {
+            const productId = document.getElementById('game').value;
+            const statusType = document.getElementById('status').value;
+            const statusText = document.getElementById('details').value;
+            const resultDiv = document.getElementById('resultMsg');
+
+            if(!productId) return alert("Veuillez sélectionner un produit !");
+
+            // Mapping des couleurs pour Sellauth
+            let color = '#ffffff';
+            if(statusType === 'Updated') color = '#22c55e';        // Vert
+            if(statusType === 'Under maintenance') color = '#eab308'; // Jaune
+            if(statusType === 'Detected') color = '#ef4444';       // Rouge
+            if(statusType === 'Testing') color = '#a855f7';        // Violet
+
+            // Le texte final affiché sera soit ce que l'utilisateur a écrit, soit le type de statut
+            const finalText = statusText || statusType;
+
+            const btn = document.getElementById('submitBtn');
+            btn.disabled = true;
+            btn.innerText = "Envoi en cours...";
+            resultDiv.innerText = "";
+
+            try {
+                // REQUÊTE API PUT
+                const res = await fetch(`${API_URL}/shops/${APP.shop}/products/${productId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': APP.key,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        status_text: finalText,
+                        status_color: color
+                    })
+                });
+
+                if(res.ok) {
+                    resultDiv.style.color = "#22c55e";
+                    resultDiv.innerText = "✅ Statut mis à jour avec succès !";
+                } else {
+                    const err = await res.json();
+                    throw new Error(err.message || "Erreur API");
+                }
+            } catch(e) {
+                console.error(e);
+                resultDiv.style.color = "#ef4444";
+                resultDiv.innerText = "❌ Erreur: " + e.message;
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "Envoyer la Mise à Jour";
+            }
+        }
+
+        function logout() {
+            localStorage.clear();
+            location.reload();
+        }
+    </script>
+</body>
+</html>
